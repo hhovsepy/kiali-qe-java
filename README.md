@@ -1,5 +1,5 @@
-# sws-ui-java
-Selenium/Java UI tests for SWS
+# kiali-qe-java
+Selenium/Java UI tests for Kiali
 
 ### run tests
 ```
