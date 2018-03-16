@@ -17,7 +17,7 @@ import lombok.extern.slf4j.Slf4j;
  */
 
 @Slf4j
-public class SwsDriverUI extends RemoteWebDriver {
+public class KialiDriverUI extends RemoteWebDriver {
 
     private static final String ENSURE_PAGE_SAFE = "return {"
             + "jquery: (typeof jQuery === \"undefined\") ? true : jQuery.active < 1,"
@@ -27,19 +27,19 @@ public class SwsDriverUI extends RemoteWebDriver {
 
     private CommonUtils utils = new CommonUtils();
 
-    public SwsDriverUI() {
+    public KialiDriverUI() {
         super();
     }
 
-    public SwsDriverUI(Capabilities capabilities) {
+    public KialiDriverUI(Capabilities capabilities) {
         super(capabilities);
     }
 
-    public SwsDriverUI(CommandExecutor commandExecutor, Capabilities capabilities) {
+    public KialiDriverUI(CommandExecutor commandExecutor, Capabilities capabilities) {
         super(commandExecutor, capabilities);
     }
 
-    public SwsDriverUI(URL remoteAddress, Capabilities capabilities) {
+    public KialiDriverUI(URL remoteAddress, Capabilities capabilities) {
         super(remoteAddress, capabilities);
     }
 

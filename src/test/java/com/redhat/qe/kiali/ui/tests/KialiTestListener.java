@@ -19,7 +19,7 @@ import lombok.extern.slf4j.Slf4j;
  */
 
 @Slf4j
-public class SwsTestListener extends TestListenerAdapter implements ISuiteListener {
+public class KialiTestListener extends TestListenerAdapter implements ISuiteListener {
     private static final String ZALENIUM_MESSAGE = "zaleniumMessage";
     private static final String ZALENIUM_TEST_STATUS = "zaleniumTestPassed";
 

@@ -19,9 +19,9 @@ public abstract class UIAbstract extends CommonUtils {
 
     private static final long WAIT_TIME_DEFAULT = 1000 * 5;
 
-    protected SwsDriverUI driver;
+    protected KialiDriverUI driver;
 
-    public UIAbstract(SwsDriverUI driver) {
+    public UIAbstract(KialiDriverUI driver) {
         this.driver = driver;
         PageFactory.initElements(driver, this);
     }

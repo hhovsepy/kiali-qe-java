@@ -1,6 +1,6 @@
 package com.redhat.qe.kiali.ui.pages;
 
-import com.redhat.qe.kiali.ui.SwsDriverUI;
+import com.redhat.qe.kiali.ui.KialiDriverUI;
 import com.redhat.qe.kiali.ui.UIAbstract;
 import com.redhat.qe.kiali.ui.components.MainMenu;
 import com.redhat.qe.kiali.ui.components.Navbar;
@@ -12,7 +12,7 @@ import com.redhat.qe.kiali.ui.components.Navbar;
 public class RootPage extends UIAbstract {
     private MainMenu menu;
 
-    public RootPage(SwsDriverUI driver) {
+    public RootPage(KialiDriverUI driver) {
         super(driver);
     }
 

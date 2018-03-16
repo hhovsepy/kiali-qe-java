@@ -2,7 +2,7 @@ package com.redhat.qe.kiali.ui.components;
 
 import org.openqa.selenium.WebElement;
 
-import com.redhat.qe.kiali.ui.SwsDriverUI;
+import com.redhat.qe.kiali.ui.KialiDriverUI;
 import com.redhat.qe.kiali.ui.UIAbstract;
 
 /**
@@ -12,11 +12,11 @@ import com.redhat.qe.kiali.ui.UIAbstract;
 public class Input extends UIAbstract {
     private String identifier = "//input";
 
-    public Input(SwsDriverUI driver) {
+    public Input(KialiDriverUI driver) {
         this(driver, null);
     }
 
-    public Input(SwsDriverUI driver, String identifier) {
+    public Input(KialiDriverUI driver, String identifier) {
         super(driver);
         if (identifier != null) {
             this.identifier = identifier;

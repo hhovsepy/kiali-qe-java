@@ -6,7 +6,7 @@ import java.util.List;
 import org.openqa.selenium.WebElement;
 
 import com.redhat.qe.kiali.model.Service;
-import com.redhat.qe.kiali.ui.SwsDriverUI;
+import com.redhat.qe.kiali.ui.KialiDriverUI;
 
 /**
  * @author Jeeva Kandasamy (jkandasa)
@@ -17,11 +17,11 @@ public class ListViewService extends ListView<Service> {
     private static final String SERVICE = ITEMS + "//span[text()=\"{0}\"]";
     private static final String SERVICE_WITH_NAMESPACE = SERVICE + "/small[text()=\"{1}\"]";
 
-    public ListViewService(SwsDriverUI driver) {
+    public ListViewService(KialiDriverUI driver) {
         this(driver, null);
     }
 
-    public ListViewService(SwsDriverUI driver, String identifier) {
+    public ListViewService(KialiDriverUI driver, String identifier) {
         super(driver, identifier);
     }
 

@@ -1,6 +1,6 @@
 package com.redhat.qe.kiali.ui.pages;
 
-import com.redhat.qe.kiali.ui.SwsDriverUI;
+import com.redhat.qe.kiali.ui.KialiDriverUI;
 import com.redhat.qe.kiali.ui.components.Filter;
 import com.redhat.qe.kiali.ui.components.ListViewService;
 import com.redhat.qe.kiali.ui.components.Pagination;
@@ -19,7 +19,7 @@ public class ServicesPage extends RootPage {
     private ListViewService serviceList;
     private Pagination pagination;
 
-    public ServicesPage(SwsDriverUI driver) {
+    public ServicesPage(KialiDriverUI driver) {
         super(driver);
         reload();
     }

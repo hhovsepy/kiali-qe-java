@@ -7,7 +7,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 
-import com.redhat.qe.kiali.rest.core.SwsHttpClient.STATUS_CODE;
+import com.redhat.qe.kiali.rest.core.KialiHttpClient.STATUS_CODE;
 
 import lombok.Builder;
 import lombok.Getter;
@@ -22,12 +22,12 @@ import lombok.extern.slf4j.Slf4j;
 @ToString
 @Builder
 @Slf4j
-public class SwsHttpResponse {
+public class KialiHttpResponse {
 
-    public static SwsHttpResponse get(URI uri, HttpResponse response)
+    public static KialiHttpResponse get(URI uri, HttpResponse response)
             throws UnsupportedOperationException, IOException {
         _logger.debug("{}", response);
-        SwsHttpResponse mcResponse = SwsHttpResponse.builder()
+        KialiHttpResponse mcResponse = KialiHttpResponse.builder()
                 .uri(uri)
                 .responseCode(response.getStatusLine().getStatusCode())
                 .headers(response.getAllHeaders())

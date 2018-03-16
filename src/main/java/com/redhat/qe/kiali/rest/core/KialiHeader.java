@@ -11,10 +11,10 @@ import org.apache.http.HttpMessage;
  * @author Jeeva Kandasamy (jkandasa)
  */
 
-public class SwsHeader {
+public class KialiHeader {
 
-    public static SwsHeader getDefault() {
-        SwsHeader header = new SwsHeader();
+    public static KialiHeader getDefault() {
+        KialiHeader header = new KialiHeader();
         header.put("User-Agent", "Mozilla/5.0");
         return header;
     }

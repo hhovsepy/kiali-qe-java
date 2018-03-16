@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.openqa.selenium.WebElement;
 
-import com.redhat.qe.kiali.ui.SwsDriverUI;
+import com.redhat.qe.kiali.ui.KialiDriverUI;
 import com.redhat.qe.kiali.ui.UIAbstract;
 
 /**
@@ -19,11 +19,11 @@ public class Dropdown extends UIAbstract {
 
     private String identifier = "//*[contains(@class, \"form-group\")]/*[contains(@class, \"dropdown\")]/..";
 
-    public Dropdown(SwsDriverUI driver) {
+    public Dropdown(KialiDriverUI driver) {
         this(driver, null);
     }
 
-    public Dropdown(SwsDriverUI driver, String identifier) {
+    public Dropdown(KialiDriverUI driver, String identifier) {
         super(driver);
         if (identifier != null) {
             this.identifier = identifier;

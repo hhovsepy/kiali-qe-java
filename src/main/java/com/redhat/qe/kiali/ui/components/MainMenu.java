@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.openqa.selenium.WebElement;
 
-import com.redhat.qe.kiali.ui.SwsDriverUI;
+import com.redhat.qe.kiali.ui.KialiDriverUI;
 import com.redhat.qe.kiali.ui.UIAbstract;
 
 /**
@@ -21,11 +21,11 @@ public class MainMenu extends UIAbstract {
 
     private Navbar navbar;
 
-    public MainMenu(SwsDriverUI driver) {
+    public MainMenu(KialiDriverUI driver) {
         this(driver, null);
     }
 
-    public MainMenu(SwsDriverUI driver, String identifier) {
+    public MainMenu(KialiDriverUI driver, String identifier) {
         super(driver);
         if (identifier != null) {
             this.identifier = identifier;

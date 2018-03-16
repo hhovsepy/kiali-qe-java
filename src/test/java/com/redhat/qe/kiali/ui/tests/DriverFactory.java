@@ -7,8 +7,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.openqa.selenium.remote.DesiredCapabilities;
 
-import com.redhat.qe.kiali.rest.SwsRestClient;
-import com.redhat.qe.kiali.ui.SwsDriverUI;
+import com.redhat.qe.kiali.rest.KialiRestClient;
+import com.redhat.qe.kiali.ui.KialiDriverUI;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
@@ -20,10 +20,10 @@ import lombok.NoArgsConstructor;
 public class DriverFactory {
     private static AtomicBoolean initialized = new AtomicBoolean(false);
     private static AtomicBoolean tearDown = new AtomicBoolean(false);
-    private static SwsDriverUI driverUI = null;
-    private static SwsRestClient restClient = null;
+    private static KialiDriverUI driverUI = null;
+    private static KialiRestClient restClient = null;
 
-    public static SwsDriverUI driverUI() {
+    public static KialiDriverUI driverUI() {
         return driverUI;
     }
 
@@ -31,7 +31,7 @@ public class DriverFactory {
         if (!initialized.get()) {
             String username = "jdoe";
             String password = "password";
-            String hostname = System.getProperty("swsHostname", "localhost");
+            String hostname = System.getProperty("kialiHostname", "localhost");
 
             String remoteDriver = System.getProperty("seleniumGrid", "http://localhost:4444/wd/hub");
 
@@ -53,7 +53,7 @@ public class DriverFactory {
             caps.setCapability("zal:idleTimeout", "90");
             caps.setCapability("zal:recordVideo", "true");
 
-            driverUI = new SwsDriverUI(new URL(remoteDriver), caps);
+            driverUI = new KialiDriverUI(new URL(remoteDriver), caps);
 
             // launch the application and maximize the screen
             driverUI.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
@@ -62,11 +62,11 @@ public class DriverFactory {
             driverUI.manage().window().maximize();
 
             // load REST client
-            restClient = new SwsRestClient("http://" + hostname, username, password);
+            restClient = new KialiRestClient("http://" + hostname, username, password);
         }
     }
 
-    public static SwsRestClient restClient() {
+    public static KialiRestClient restClient() {
         return restClient;
     }
 

@@ -10,8 +10,8 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.BeforeSuite;
 
 import com.redhat.qe.kiali.model.KeyValue;
-import com.redhat.qe.kiali.rest.SwsRestClient;
-import com.redhat.qe.kiali.ui.SwsDriverUI;
+import com.redhat.qe.kiali.rest.KialiRestClient;
+import com.redhat.qe.kiali.ui.KialiDriverUI;
 import com.redhat.qe.kiali.ui.pages.RootPage;
 
 /**
@@ -49,7 +49,7 @@ public abstract class TestAbstract {
         return false;
     }
 
-    public SwsDriverUI driverUI() {
+    public KialiDriverUI driverUI() {
         return DriverFactory.driverUI();
     }
 
@@ -76,7 +76,7 @@ public abstract class TestAbstract {
         }
     }
 
-    public SwsRestClient restClient() {
+    public KialiRestClient restClient() {
         return DriverFactory.restClient();
     }
 

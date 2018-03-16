@@ -2,7 +2,7 @@ package com.redhat.qe.kiali.ui.components;
 
 import java.util.List;
 
-import com.redhat.qe.kiali.ui.SwsDriverUI;
+import com.redhat.qe.kiali.ui.KialiDriverUI;
 import com.redhat.qe.kiali.ui.UIAbstract;
 
 /**
@@ -16,11 +16,11 @@ public abstract class ListView<T> extends UIAbstract {
 
     protected String identifier = "//*[contains(@class, \"list-view-pf\") and contains(@class, \"list-view-pf-view\")]";
 
-    public ListView(SwsDriverUI driver) {
+    public ListView(KialiDriverUI driver) {
         this(driver, null);
     }
 
-    public ListView(SwsDriverUI driver, String identifier) {
+    public ListView(KialiDriverUI driver, String identifier) {
         super(driver);
         if (identifier != null) {
             this.identifier = identifier;

@@ -50,7 +50,7 @@ import lombok.extern.slf4j.Slf4j;
  */
 
 @Slf4j
-public class SwsHttpClient {
+public class KialiHttpClient {
 
     // https://httpstatuses.com/
     public enum STATUS_CODE {
@@ -88,11 +88,11 @@ public class SwsHttpClient {
 
     // constructors
 
-    public SwsHttpClient() {
+    public KialiHttpClient() {
         client = HttpClientBuilder.create().build();
     }
 
-    public SwsHttpClient(TRUST_HOST_TYPE trustHostType) {
+    public KialiHttpClient(TRUST_HOST_TYPE trustHostType) {
         customRequestConfig = RequestConfig.custom()
                 .setCookieSpec(CookieSpecs.STANDARD)
                 .build();
@@ -158,11 +158,11 @@ public class SwsHttpClient {
         return simpleJavaTypeResolver;
     }
 
-    private SwsHttpResponse execute(HttpUriRequest request) {
+    private KialiHttpResponse execute(HttpUriRequest request) {
         CloseableHttpResponse response = null;
         try {
             response = client.execute(request);
-            return SwsHttpResponse.get(request.getURI(), response);
+            return KialiHttpResponse.get(request.getURI(), response);
         } catch (Exception ex) {
             _logger.debug("Exception,", ex);
             throw new RuntimeException(
@@ -178,7 +178,7 @@ public class SwsHttpClient {
         }
     }
 
-    public String getHeader(SwsHttpResponse response, String name) {
+    public String getHeader(KialiHttpResponse response, String name) {
         Header[] headers = response.getHeaders();
         for (int index = 0; index < headers.length; index++) {
             Header header = headers[index];
@@ -226,7 +226,7 @@ public class SwsHttpClient {
     }
 
     // validate response
-    public void validateResponse(SwsHttpResponse response, Integer expectedResponseCode) {
+    public void validateResponse(KialiHttpResponse response, Integer expectedResponseCode) {
         _logger.debug("{}", response);
         if (expectedResponseCode != null) {
             if (!response.getResponseCode().equals(expectedResponseCode)) {
@@ -239,40 +239,40 @@ public class SwsHttpClient {
     // actual HTTP RESUEST methods
 
     // HTTP DELETE request
-    protected SwsHttpResponse doDelete(String url, Integer expectedResponseCode) {
-        return doDelete(url, SwsHeader.getDefault(), expectedResponseCode);
+    protected KialiHttpResponse doDelete(String url, Integer expectedResponseCode) {
+        return doDelete(url, KialiHeader.getDefault(), expectedResponseCode);
     }
 
     // HTTP DELETE request - primary method
-    protected SwsHttpResponse doDelete(String url, SwsHeader header, Integer expectedResponseCode) {
+    protected KialiHttpResponse doDelete(String url, KialiHeader header, Integer expectedResponseCode) {
         HttpDelete delete = new HttpDelete(url);
         header.updateHeaders(delete);
-        SwsHttpResponse httpResponse = execute(delete);
+        KialiHttpResponse httpResponse = execute(delete);
         // validate response
         validateResponse(httpResponse, expectedResponseCode);
         return httpResponse;
     }
 
     // HTTP GET request
-    protected SwsHttpResponse doGet(String url, Integer expectedResponseCode) {
-        return doGet(url, null, SwsHeader.getDefault(), expectedResponseCode);
+    protected KialiHttpResponse doGet(String url, Integer expectedResponseCode) {
+        return doGet(url, null, KialiHeader.getDefault(), expectedResponseCode);
     }
 
     // GET, POST, PUT, DELETE methods start
 
     // HTTP GET request
-    protected SwsHttpResponse doGet(String url, Map<String, Object> queryParameters, Integer expectedResponseCode) {
-        return doGet(url, queryParameters, SwsHeader.getDefault(), expectedResponseCode);
+    protected KialiHttpResponse doGet(String url, Map<String, Object> queryParameters, Integer expectedResponseCode) {
+        return doGet(url, queryParameters, KialiHeader.getDefault(), expectedResponseCode);
     }
 
     // HTTP GET request - primary method
-    protected SwsHttpResponse doGet(String url, Map<String, Object> queryParameters,
-            SwsHeader header, Integer expectedResponseCode) {
+    protected KialiHttpResponse doGet(String url, Map<String, Object> queryParameters,
+            KialiHeader header, Integer expectedResponseCode) {
         try {
             HttpGet get = new HttpGet(getURI(url, queryParameters));
             header.updateHeaders(get);
             // execute
-            SwsHttpResponse httpResponse = execute(get);
+            KialiHttpResponse httpResponse = execute(get);
             // validate response
             validateResponse(httpResponse, expectedResponseCode);
             return httpResponse;
@@ -284,19 +284,19 @@ public class SwsHttpClient {
     }
 
     // HTTP GET request
-    protected SwsHttpResponse doGet(String url, SwsHeader header, Integer expectedResponseCode) {
+    protected KialiHttpResponse doGet(String url, KialiHeader header, Integer expectedResponseCode) {
         return doGet(url, null, header, expectedResponseCode);
     }
 
     // HTTP POST request - primary method
-    protected SwsHttpResponse doPost(String url, Map<String, Object> queryParameters,
-            SwsHeader header, HttpEntity entity, Integer expectedResponseCode) {
+    protected KialiHttpResponse doPost(String url, Map<String, Object> queryParameters,
+            KialiHeader header, HttpEntity entity, Integer expectedResponseCode) {
         try {
             HttpPost post = new HttpPost(getURI(url, queryParameters));
             header.updateHeaders(post);
             post.setEntity(entity);
             // execute
-            SwsHttpResponse httpResponse = execute(post);
+            KialiHttpResponse httpResponse = execute(post);
             // validate response
             validateResponse(httpResponse, expectedResponseCode);
             return httpResponse;
@@ -309,15 +309,15 @@ public class SwsHttpClient {
     }
 
     // HTTP POST request
-    protected SwsHttpResponse doPost(String url, Map<String, Object> queryParameters,
-            SwsHeader header, Integer expectedResponseCode) {
+    protected KialiHttpResponse doPost(String url, Map<String, Object> queryParameters,
+            KialiHeader header, Integer expectedResponseCode) {
         StringEntity stringEntity = null;
         return doPost(url, queryParameters, header, stringEntity, expectedResponseCode);
     }
 
     // HTTP POST request
-    protected SwsHttpResponse doPost(String url, Map<String, Object> queryParameters,
-            SwsHeader header, String entity, Integer expectedResponseCode) {
+    protected KialiHttpResponse doPost(String url, Map<String, Object> queryParameters,
+            KialiHeader header, String entity, Integer expectedResponseCode) {
         _logger.debug("Entity: {}", entity);
         try {
             return doPost(url, queryParameters, header, new StringEntity(entity), expectedResponseCode);
@@ -330,31 +330,31 @@ public class SwsHttpClient {
     }
 
     // HTTP POST request
-    protected SwsHttpResponse doPost(String url, SwsHeader header, String entity,
+    protected KialiHttpResponse doPost(String url, KialiHeader header, String entity,
             Integer expectedResponseCode) {
         return doPost(url, null, header, entity, expectedResponseCode);
     }
 
     // HTTP PUT request
-    protected SwsHttpResponse doPut(String url, SwsHeader header, HttpEntity entity, Integer expectedResponseCode) {
+    protected KialiHttpResponse doPut(String url, KialiHeader header, HttpEntity entity, Integer expectedResponseCode) {
         HttpPut put = new HttpPut(url);
         header.updateHeaders(put);
         put.setEntity(entity);
         // execute
-        SwsHttpResponse httpResponse = execute(put);
+        KialiHttpResponse httpResponse = execute(put);
         // validate response
         validateResponse(httpResponse, expectedResponseCode);
         return httpResponse;
     }
 
     // HTTP PUT request
-    protected SwsHttpResponse doPut(String url, SwsHeader header, Integer expectedResponseCode) {
+    protected KialiHttpResponse doPut(String url, KialiHeader header, Integer expectedResponseCode) {
         StringEntity stringEntity = null;
         return doPut(url, header, stringEntity, expectedResponseCode);
     }
 
     // HTTP PUT request
-    protected SwsHttpResponse doPut(String url, SwsHeader header, String entity, Integer expectedResponseCode) {
+    protected KialiHttpResponse doPut(String url, KialiHeader header, String entity, Integer expectedResponseCode) {
         _logger.debug("Entity: {}", entity);
         try {
             return doPut(url, header, new StringEntity(entity), expectedResponseCode);

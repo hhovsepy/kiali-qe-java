@@ -2,7 +2,7 @@ package com.redhat.qe.kiali.ui.components;
 
 import java.util.List;
 
-import com.redhat.qe.kiali.ui.SwsDriverUI;
+import com.redhat.qe.kiali.ui.KialiDriverUI;
 import com.redhat.qe.kiali.ui.UIAbstract;
 
 /**
@@ -22,11 +22,11 @@ public class Pagination extends UIAbstract {
     private static final String PREVIOUS_PAGE = "//*[@title=\"Previous Page\"]";
     private String identifier = "//*[contains(@class, \"list-view-pf-pagination\") and contains(@class, \"content-view-pf-pagination\")]";
 
-    public Pagination(SwsDriverUI driver) {
+    public Pagination(KialiDriverUI driver) {
         this(driver, null);
     }
 
-    public Pagination(SwsDriverUI driver, String identifier) {
+    public Pagination(KialiDriverUI driver, String identifier) {
         super(driver);
         if (identifier != null) {
             this.identifier = identifier;

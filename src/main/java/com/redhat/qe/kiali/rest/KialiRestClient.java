@@ -7,27 +7,27 @@ import java.util.Map;
 
 import com.redhat.qe.kiali.model.Namespace;
 import com.redhat.qe.kiali.model.Services;
-import com.redhat.qe.kiali.rest.core.SwsHeader;
-import com.redhat.qe.kiali.rest.core.SwsHttpClient;
-import com.redhat.qe.kiali.rest.core.SwsHttpResponse;
+import com.redhat.qe.kiali.rest.core.KialiHeader;
+import com.redhat.qe.kiali.rest.core.KialiHttpClient;
+import com.redhat.qe.kiali.rest.core.KialiHttpResponse;
 
 /**
  * @author Jeeva Kandasamy (jkandasa)
  */
 
-public class SwsRestClient extends SwsHttpClient {
+public class KialiRestClient extends KialiHttpClient {
 
     private String baseUrl;
     private String username;
     private String password;
 
-    private SwsHeader header;
+    private KialiHeader header;
 
-    public SwsRestClient(String baseUrl, String username, String password) {
+    public KialiRestClient(String baseUrl, String username, String password) {
         this(baseUrl, username, password, TRUST_HOST_TYPE.DEFAULT);
     }
 
-    public SwsRestClient(String baseUrl, String username, String password, TRUST_HOST_TYPE trustHostType) {
+    public KialiRestClient(String baseUrl, String username, String password, TRUST_HOST_TYPE trustHostType) {
         super(trustHostType == null ? TRUST_HOST_TYPE.DEFAULT : trustHostType);
         if (baseUrl.endsWith("/")) {
             this.baseUrl = baseUrl.substring(0, baseUrl.length() - 1);
@@ -40,14 +40,14 @@ public class SwsRestClient extends SwsHttpClient {
     }
 
     private void initClient() {
-        header = SwsHeader.getDefault();
+        header = KialiHeader.getDefault();
         header.addJsonContentType();
         header.addAuthorization(username, password);
     }
 
     @SuppressWarnings("unchecked")
     public List<Namespace> namespaces() {
-        SwsHttpResponse response = doGet(baseUrl + "/api/namespaces", header, STATUS_CODE.OK.getCode());
+        KialiHttpResponse response = doGet(baseUrl + "/api/namespaces", header, STATUS_CODE.OK.getCode());
         return (List<Namespace>) readValue(response.getEntity(),
                 collectionResolver().get(List.class, Namespace.class));
     }
@@ -57,7 +57,7 @@ public class SwsRestClient extends SwsHttpClient {
     }
 
     public String rawPost(String path, HashMap<String, Object> entity) {
-        SwsHttpResponse response = doPost(baseUrl + "/api/namespaces", header, toJsonString(entity),
+        KialiHttpResponse response = doPost(baseUrl + "/api/namespaces", header, toJsonString(entity),
                 STATUS_CODE.OK.getCode());
         return (String) readValue(response.getEntity(), simpleResolver().get(String.class));
     }
@@ -65,7 +65,7 @@ public class SwsRestClient extends SwsHttpClient {
     @SuppressWarnings("unchecked")
     public Map<String, Object> serviceMetrics(String namespace, String service,
             Map<String, Object> queryParameters) {
-        SwsHttpResponse response = doGet(
+        KialiHttpResponse response = doGet(
                 baseUrl + MessageFormat.format("/api/namespaces/{0}/services/{1}/metrics", namespace, service),
                 header, STATUS_CODE.OK.getCode());
         return (Map<String, Object>) readValue(response.getEntity(),
@@ -73,14 +73,14 @@ public class SwsRestClient extends SwsHttpClient {
     }
 
     public Services services(String namespace) {
-        SwsHttpResponse response = doGet(baseUrl + MessageFormat.format("/api/namespaces/{0}/services", namespace),
+        KialiHttpResponse response = doGet(baseUrl + MessageFormat.format("/api/namespaces/{0}/services", namespace),
                 header, STATUS_CODE.OK.getCode());
         return (Services) readValue(response.getEntity(), simpleResolver().get(Services.class));
     }
 
     @SuppressWarnings("unchecked")
     public Map<String, String> status() {
-        SwsHttpResponse response = doGet(baseUrl + "/api/status", header, STATUS_CODE.OK.getCode());
+        KialiHttpResponse response = doGet(baseUrl + "/api/status", header, STATUS_CODE.OK.getCode());
         return (Map<String, String>) readValue(response.getEntity(),
                 mapResolver().get(Map.class, String.class, String.class));
     }

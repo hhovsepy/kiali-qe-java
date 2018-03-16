@@ -3,7 +3,7 @@ package com.redhat.qe.kiali.ui.components;
 import java.util.List;
 
 import com.redhat.qe.kiali.model.SortOption;
-import com.redhat.qe.kiali.ui.SwsDriverUI;
+import com.redhat.qe.kiali.ui.KialiDriverUI;
 import com.redhat.qe.kiali.ui.UIAbstract;
 
 /**
@@ -16,11 +16,11 @@ public class SortDropdown extends UIAbstract {
     private Dropdown dropdown;
     private Sort sort;
 
-    public SortDropdown(SwsDriverUI driver) {
+    public SortDropdown(KialiDriverUI driver) {
         this(driver, null);
     }
 
-    public SortDropdown(SwsDriverUI driver, String identifier) {
+    public SortDropdown(KialiDriverUI driver, String identifier) {
         super(driver);
         if (identifier != null) {
             this.identifier = identifier;
