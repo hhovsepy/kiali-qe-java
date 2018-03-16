@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
-<suite thread-count="1" name="Kiali UI tests - Java">
+<suite thread-count="1" name="Kiali UI tests[Java]">
   <listeners>
-    <listener class-name="com.redhat.qe.kiali.ui.tests.SwsTestListener"></listener>
+    <listener class-name="com.redhat.qe.kiali.ui.tests.KialiTestListener"></listener>
   </listeners>
 
   <test name="Navbar and Menu test">
