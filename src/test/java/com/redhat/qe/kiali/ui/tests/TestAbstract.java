@@ -6,8 +6,9 @@ import java.util.concurrent.ThreadLocalRandom;
 
 import org.testng.ITestContext;
 import org.testng.annotations.AfterSuite;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.BeforeSuite;
+import org.testng.annotations.BeforeTest;
 
 import com.redhat.qe.kiali.model.KeyValue;
 import com.redhat.qe.kiali.rest.KialiRestClient;
@@ -21,6 +22,13 @@ import com.redhat.qe.kiali.ui.pages.RootPage;
 public abstract class TestAbstract {
     protected RootPage rootPage;
     protected boolean reloadPageBeforeMethod = true;
+    protected Driver driver = null;
+
+    @BeforeTest
+    @BeforeClass
+    public void setup(final ITestContext testContext) throws MalformedURLException {
+        driver = DriverFactory.getDriver(testContext);
+    }
 
     public boolean contains(List<Integer> items, Integer target) {
         for (Integer item : items) {
@@ -50,7 +58,7 @@ public abstract class TestAbstract {
     }
 
     public KialiDriverUI driverUI() {
-        return DriverFactory.driverUI();
+        return driver.getDriverUI();
     }
 
     public int random() {
@@ -77,12 +85,7 @@ public abstract class TestAbstract {
     }
 
     public KialiRestClient restClient() {
-        return DriverFactory.restClient();
-    }
-
-    @BeforeSuite
-    public void setupTasks(ITestContext ctx) throws MalformedURLException {
-        DriverFactory.initialize(ctx.getSuite().getName());
+        return driver.getRestClient();
     }
 
     @AfterSuite

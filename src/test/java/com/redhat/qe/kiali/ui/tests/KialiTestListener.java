@@ -1,7 +1,7 @@
 package com.redhat.qe.kiali.ui.tests;
 
 import java.io.File;
-import java.io.IOException;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.io.FileUtils;
 import org.openqa.selenium.Cookie;
@@ -23,48 +23,164 @@ public class KialiTestListener extends TestListenerAdapter implements ISuiteList
     private static final String ZALENIUM_MESSAGE = "zaleniumMessage";
     private static final String ZALENIUM_TEST_STATUS = "zaleniumTestPassed";
 
-    private int failures = 0;
-    private int success = 0;
-    private int skipped = 0;
+    private static final ConcurrentHashMap<String, TestCount> TEST_COUNTS = new ConcurrentHashMap<String, TestCount>();
+    private static final TestCount SUITE_COUNT = new TestCount();
+
+    private enum STATUS {
+        SUCCESS,
+        FAILURES,
+        SKIPPED,
+        START_TIME,
+        END_TIME;
+    }
+
+    private String getTestName(ITestContext testContext) {
+        String suiteName = testContext.getSuite().getName();
+        String testName = testContext.getName();
+        return suiteName + "[" + testName + "]";
+    }
+
+    private void UpdateTestCount(ITestContext testContext, STATUS status) {
+        updateTestCount(testContext, status, null);
+    }
+
+    private void updateTestCount(ITestContext testContext, STATUS status, Long timestamp) {
+        String name = getTestName(testContext);
+        if (TEST_COUNTS.get(name) == null) {
+            TEST_COUNTS.put(name, new TestCount());
+        }
+        TestCount testCount = TEST_COUNTS.get(name);
+        switch (status) {
+            case FAILURES:
+                testCount.incrementFailures();
+                break;
+            case SKIPPED:
+                testCount.incrementSkipped();
+                break;
+            case SUCCESS:
+                testCount.incrementSuccess();
+                break;
+            case START_TIME:
+                testCount.setStartTime(timestamp);
+                break;
+            case END_TIME:
+                testCount.setEndTime(timestamp);
+                break;
+            default:
+                break;
+        }
+    }
 
     private Cookie cookie(String key, String value) {
         return new Cookie(key, value);
     }
 
-    // test listeners
+    private void updateCookieAllDrivers(String key, String value) {
+        for (String driverName : DriverFactory.getKeysAllDriver()) {
+            try {
+                DriverFactory.getDriver(driverName).getDriverUI().manage().addCookie(cookie(key, value));
+            } catch (Exception ex) {
+                _logger.error("Exception, driverName:[{}]", driverName, ex);
+            }
+        }
+    }
+
+    // suite listeners
+
+    @Override
+    public void onStart(ISuite suite) {
+        SUITE_COUNT.setStartTime(System.currentTimeMillis());
+        //DriverFactory.driverUI().manage().addCookie(cookie(ZALENIUM_MESSAGE, "[S] Start: " + suite.getName()));
+        _logger.info("*** START[S]- {}", suite.getName());
+        _logger.debug("Thread count: {}", suite.getXmlSuite().getThreadCount());
+    }
 
     @Override
     public void onFinish(ISuite suite) {
-        DriverFactory.driverUI().manage().addCookie(cookie(ZALENIUM_MESSAGE, "[S] End: " + suite.getName()));
+        SUITE_COUNT.setEndTime(System.currentTimeMillis());
+        updateCookieAllDrivers(ZALENIUM_MESSAGE, "[S] End: " + suite.getName());
         _logger.info("*** END[S]- {}", suite.getName());
-        _logger.info("*** Tests run[total:{}, failures:{}, skipped:{}, success:{}]",
-                (failures + skipped + success), failures, skipped, success);
-        if (failures > 0) {
-            DriverFactory.driverUI().manage().addCookie(cookie(ZALENIUM_TEST_STATUS, "false"));
-        } else {
-            DriverFactory.driverUI().manage().addCookie(cookie(ZALENIUM_TEST_STATUS, "true"));
+        StringBuilder builder = new StringBuilder();
+        builder.append("\n************* SUITE *************************");
+        builder.append("\n").append(suite.getName()).append(": {").append(SUITE_COUNT).append("}");
+        builder.append("\n************* TESTS **************************");
+        for (String key : TEST_COUNTS.keySet()) {
+            builder.append("\n").append(key).append(": {").append(TEST_COUNTS.get(key)).append("}");
         }
-
+        builder.append("\n**********************************************");
+        _logger.info("*** Final status:{}", builder.toString());
+        if (SUITE_COUNT.getTotal() != SUITE_COUNT.getSuccess()) {
+            updateCookieAllDrivers(ZALENIUM_TEST_STATUS, "false");
+        } else {
+            updateCookieAllDrivers(ZALENIUM_TEST_STATUS, "true");
+        }
         // call tearDown tasks
-        DriverFactory.tearDown();
+        DriverFactory.tearDownAll();
+    }
+
+    // test listeners
+
+    @Override
+    public void onStart(ITestContext context) {
+        _logger.info("*** START[T] - {}", context.getName());
+        updateTestCount(context, STATUS.START_TIME, System.currentTimeMillis());
+        try {
+            DriverFactory.getDriver(context).getDriverUI().manage()
+                    .addCookie(cookie(ZALENIUM_MESSAGE, "[T] Start: " + context.getName()));
+        } catch (Exception ex) {
+            _logger.error("Exception, ", ex);
+        }
     }
 
     @Override
     public void onFinish(ITestContext context) {
-        DriverFactory.driverUI().manage().addCookie(cookie(ZALENIUM_MESSAGE, "[T] End: " + context.getName()));
         _logger.info("*** END[T] - {}", context.getName());
+        updateTestCount(context, STATUS.END_TIME, System.currentTimeMillis());
+        TestCount testCount = TEST_COUNTS.get(getTestName(context));
+        _logger.info("*** Test run:{name:[{}], {}}", context.getName(), testCount.toString());
+        try {
+            String driverName = DriverFactory.getDriverName(context);
+            Driver driver = DriverFactory.getDriver(driverName);
+            driver.getDriverUI().manage().addCookie(cookie(ZALENIUM_MESSAGE, "[T] End: " + context.getName()));
+            // if thread count is greater than 1, works on parrel run
+            if (context.getSuite().getXmlSuite().getThreadCount() > 1) {
+                if (testCount.getTotal() == testCount.getSuccess()) {
+                    driver.getDriverUI().manage().addCookie(cookie(ZALENIUM_TEST_STATUS, "true"));
+                } else {
+                    driver.getDriverUI().manage().addCookie(cookie(ZALENIUM_TEST_STATUS, "false"));
+                }
+                driver.tearDown();
+                DriverFactory.removeDriver(driverName);
+            }
+        } catch (Exception ex) {
+            _logger.error("Exception, ", ex);
+        }
+    }
+
+    // method listeners
+
+    @Override
+    public void onTestStart(ITestResult result) {
+        _logger.info("*** START[M] - {}", result.getName());
+        try {
+            DriverFactory.getDriver(result.getTestContext()).getDriverUI().manage()
+                    .addCookie(cookie(ZALENIUM_MESSAGE, "[M] Start: " + result.getName()));
+        } catch (Exception ex) {
+            _logger.error("Exception, ", ex);
+        }
     }
 
     @Override
-    public void onStart(ISuite suite) {
-        //DriverFactory.driverUI().manage().addCookie(cookie(ZALENIUM_MESSAGE, "[S] Start: " + suite.getName()));
-        _logger.info("*** START[S]- {}", suite.getName());
-    }
-
-    @Override
-    public void onStart(ITestContext context) {
-        DriverFactory.driverUI().manage().addCookie(cookie(ZALENIUM_MESSAGE, "[T] Start: " + context.getName()));
-        _logger.info("*** START[T] - {}", context.getName());
+    public void onTestSuccess(ITestResult result) {
+        SUITE_COUNT.incrementSuccess();
+        UpdateTestCount(result.getTestContext(), STATUS.SUCCESS);
+        _logger.info("*** SUCCESS[M] - {}", result.getName());
+        try {
+            DriverFactory.getDriver(result.getTestContext()).getDriverUI().manage()
+                    .addCookie(cookie(ZALENIUM_MESSAGE, "[M] Success: " + result.getName()));
+        } catch (Exception ex) {
+            _logger.error("Exception, ", ex);
+        }
     }
 
     @Override
@@ -73,48 +189,43 @@ public class KialiTestListener extends TestListenerAdapter implements ISuiteList
 
     @Override
     public void onTestFailure(ITestResult result) {
-        failures++;
-
-        // report to video test failed
-        DriverFactory.driverUI().manage().addCookie(cookie(ZALENIUM_MESSAGE, "[M] Failed: " + result.getName()));
+        SUITE_COUNT.incrementFailures();
+        UpdateTestCount(result.getTestContext(), STATUS.FAILURES);
         _logger.info("*** FAILED[M] - {}", result.getName());
+        // report to video test failed
+        try {
+            DriverFactory.getDriver(result.getTestContext()).getDriverUI().manage()
+                    .addCookie(cookie(ZALENIUM_MESSAGE, "[M] Failed: " + result.getName()));
+        } catch (Exception ex) {
+            _logger.error("Exception, ", ex);
+        }
 
         // take screenshot
         // TODO: add code to take screenshot with reports
-        File screenshot = DriverFactory.driverUI().getScreenshotAs(OutputType.FILE);
         try {
+            Driver driver = DriverFactory.getDriver(result.getTestContext());
+            File screenshot = driver.getDriverUI().getScreenshotAs(OutputType.FILE);
             String distinationName = "/tmp/selenium/sl_" + result.getName() + "_" + System.currentTimeMillis()
                     + ".png";
             FileUtils.copyFile(screenshot, new File(distinationName));
-        } catch (IOException ex) {
+            // reload browser in failure
+            driver.getDriverUI().navigate().refresh();
+        } catch (Exception ex) {
             _logger.error("Exception,", ex);
         }
-
-        // reload browser in failure
-        DriverFactory.driverUI().navigate().refresh();
-
     }
 
     @Override
     public void onTestSkipped(ITestResult result) {
-        skipped++;
-        DriverFactory.driverUI().manage().addCookie(cookie(ZALENIUM_MESSAGE, "[M] Skipped: " + result.getName()));
+        SUITE_COUNT.incrementSkipped();
+        UpdateTestCount(result.getTestContext(), STATUS.SKIPPED);
         _logger.info("*** SKIPPED[M] - {}", result.getName());
-    }
-
-    // suite listener
-
-    @Override
-    public void onTestStart(ITestResult result) {
-        DriverFactory.driverUI().manage().addCookie(cookie(ZALENIUM_MESSAGE, "[M] Start: " + result.getName()));
-        _logger.info("*** START[M] - {}", result.getName());
-    }
-
-    @Override
-    public void onTestSuccess(ITestResult result) {
-        success++;
-        DriverFactory.driverUI().manage().addCookie(cookie(ZALENIUM_MESSAGE, "[M] Success: " + result.getName()));
-        _logger.info("*** SUCCESS[M] - {}", result.getName());
+        try {
+            DriverFactory.getDriver(result.getTestContext()).getDriverUI().manage()
+                    .addCookie(cookie(ZALENIUM_MESSAGE, "[M] Skipped: " + result.getName()));
+        } catch (Exception ex) {
+            _logger.error("Exception, ", ex);
+        }
     }
 
 }

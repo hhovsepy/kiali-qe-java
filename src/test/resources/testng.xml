@@ -1,16 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
-<suite thread-count="1" name="Kiali UI tests[Java]">
+<suite name="Kiali UI tests - Java" parallel="tests" thread-count="2">
   <listeners>
     <listener class-name="com.redhat.qe.kiali.ui.tests.KialiTestListener"></listener>
   </listeners>
 
   <test name="Navbar and Menu test">
     <classes>
-      <class name="com.redhat.qe.kiali.ui.tests.menu.TestMenu" />
       <class name="com.redhat.qe.kiali.ui.tests.menu.TestNavbar" />
+      <class name="com.redhat.qe.kiali.ui.tests.menu.TestMenu" />
     </classes>
   </test>
+
   <test name="Services page tests">
     <classes>
       <class name="com.redhat.qe.kiali.ui.tests.services.TestServicePage" />
