@@ -12,11 +12,11 @@ import org.openqa.selenium.remote.DesiredCapabilities;
 import org.testng.ITestContext;
 
 import com.redhat.qe.kiali.rest.KialiRestClient;
-import com.redhat.qe.kiali.ui.KialiDriverUI;
+import com.redhat.qe.kiali.ui.KialiWebDriver;
 
-import lombok.extern.slf4j.Slf4j;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author Jeeva Kandasamy (jkandasa)
@@ -61,12 +61,13 @@ public class DriverFactory {
     }
 
     public static String getDriverName(final ITestContext testContext) {
-        int threadCount = testContext.getSuite().getXmlSuite().getThreadCount();
         String suiteName = testContext.getSuite().getName();
+        boolean isParallel = testContext.getSuite().getXmlSuite().getParallel().isParallel();
+        int threadCount = testContext.getSuite().getXmlSuite().getThreadCount();
         String testName = testContext.getName();
         // if we have thread count more than 1(Parallel), create driver for each test,
         // otherwise single drivers for entire suite
-        if (threadCount > 1) {
+        if (isParallel && threadCount > 1) {
             return suiteName + "[" + testName + "]";
         } else {
             return suiteName;
@@ -98,19 +99,20 @@ public class DriverFactory {
         caps.setCapability("zal:idleTimeout", "60");
         caps.setCapability("zal:recordVideo", "true");
 
-        KialiDriverUI driverUI = new KialiDriverUI(new URL(remoteDriver), caps);
+        KialiWebDriver webDriver = new KialiWebDriver(new URL(remoteDriver), caps);
 
         // launch the application and maximize the screen
-        driverUI.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
-        driverUI.get("http://" + username + ":" + password + "@" + hostname);
+        webDriver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
+        webDriver.get("http://" + username + ":" + password + "@" + hostname);
 
-        driverUI.manage().window().maximize();
-        _logger.debug("New selenium driver created. SessionId:[{}]", driverUI.getSessionId());
+        webDriver.manage().window().maximize();
+        _logger.debug("New selenium driver created. SessionId:[{}]", webDriver.getSessionId());
 
         // load REST client
         KialiRestClient restClient = new KialiRestClient("http://" + hostname, username, password);
         return Driver.builder()
-                .driverUI(driverUI)
+                .kialiHostname(hostname)
+                .webDriver(webDriver)
                 .restClient(restClient)
                 .build();
     }

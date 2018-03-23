@@ -19,73 +19,87 @@ public abstract class UIAbstract extends CommonUtils {
 
     private static final long WAIT_TIME_DEFAULT = 1000 * 5;
 
-    protected KialiDriverUI driver;
+    protected KialiWebDriver driver;
 
-    public UIAbstract(KialiDriverUI driver) {
+    public UIAbstract(KialiWebDriver driver) {
         this.driver = driver;
         PageFactory.initElements(driver, this);
     }
 
+    protected List<String> children(String parentIdentifier, String childIdentifier, Object... arguments) {
+        return children(parentIdentifier, format(childIdentifier, arguments));
+    }
+
     protected List<String> children(String parentIdentifier, String childIdentifier) {
+        _logger.debug("identifier[parent:{{}}, child:{{}}]", parentIdentifier, childIdentifier);
         WebElement parent = element(parentIdentifier);
-        ArrayList<String> menus = new ArrayList<String>();
+        ArrayList<String> items = new ArrayList<String>();
         for (WebElement el : parent.findElements(By.xpath(childIdentifier))) {
-            menus.add(el.getText());
+            items.add(el.getText());
         }
-        return menus;
+        return items;
     }
 
     protected WebElement element(String identifier) {
+        _logger.debug("identifier:{{}}", identifier);
         return driver.findElement(By.xpath(identifier));
     }
 
-    protected WebElement element(String identifier, Object... arguments) {
-        _logger.debug("identifier:{{}}, arguments:{}", identifier, arguments);
-        return driver.findElement(By.xpath(MessageFormat.format(identifier, arguments)));
-    }
-
     protected WebElement element(String parentIdentifier, String childIdentifier, Object... arguments) {
-        _logger.debug("identifier[parent:{{}}, child:{{}}], arguments:{}",
-                parentIdentifier, childIdentifier, arguments);
+        childIdentifier = format(childIdentifier, arguments);
+        _logger.debug("identifier[parent:{{}}, child:{{}}]", parentIdentifier, childIdentifier);
         if (parentIdentifier != null) {
             WebElement parent = element(parentIdentifier);
-            return parent.findElement(By.xpath(MessageFormat.format(childIdentifier, arguments)));
+            return parent.findElement(By.xpath(childIdentifier));
         } else {
-            return driver.findElement(By.xpath(MessageFormat.format(childIdentifier, arguments)));
+            return driver.findElement(By.xpath(childIdentifier));
         }
 
     }
 
     protected WebElement element(WebElement parent, String childIdentifier, Object... arguments) {
-        _logger.debug("identifier[parent:{{}}, child:{{}}], arguments:{}",
-                parent.toString(), childIdentifier, arguments);
-        return parent.findElement(By.xpath(MessageFormat.format(childIdentifier, arguments)));
+        childIdentifier = format(childIdentifier, arguments);
+        _logger.debug("identifier[parent:{{}}, child:{{}}]", parent.toString(), childIdentifier);
+        return parent.findElement(By.xpath(childIdentifier));
     }
 
     protected List<WebElement> elements(String identifier) {
+        _logger.debug("identifier:{{}}", identifier);
         return driver.findElements(By.xpath(identifier));
     }
 
-    protected List<WebElement> elements(String identifier, Object... arguments) {
-        _logger.debug("identifier:{{}}, arguments:{}", identifier, arguments);
-        return driver.findElements(By.xpath(MessageFormat.format(identifier, arguments)));
+    protected List<WebElement> elements(String parentIdentifier, String childIdentifier, Object... arguments) {
+        childIdentifier = format(childIdentifier, arguments);
+        _logger.debug("identifier[parent:{{}}, child:{{}}]", parentIdentifier, childIdentifier);
+        WebElement parent = element(parentIdentifier);
+        return parent.findElements(By.xpath(childIdentifier));
     }
 
-    protected List<WebElement> elements(String parentIdentifier, String childIdentifier, Object... arguments) {
-        _logger.debug("identifier[parent:{{}}, child:{{}}], arguments:{}",
-                parentIdentifier, childIdentifier, arguments);
-        WebElement parent = element(parentIdentifier);
-        return parent.findElements(By.xpath(MessageFormat.format(childIdentifier, arguments)));
+    protected List<WebElement> elements(WebElement parent, String childIdentifier, Object... arguments) {
+        childIdentifier = format(childIdentifier, arguments);
+        _logger.debug("identifier[parent:{{}}, child:{{}}]", parent.toString(), childIdentifier);
+        return parent.findElements(By.xpath(childIdentifier));
     }
 
     // helpers
     protected boolean isElementPresent(String identifier, Object... arguments) {
-        return isElementPresent(null, identifier, arguments);
+        String parent = null;
+        return isElementPresent(parent, identifier, arguments);
     }
 
     protected boolean isElementPresent(String parentIdentifier, String childIdentifier, Object... arguments) {
         try {
             element(parentIdentifier, childIdentifier, arguments);
+            return true;
+        } catch (Exception ex) {
+            _logger.trace("Exception,", ex);
+            return false;
+        }
+    }
+
+    protected boolean isElementPresent(WebElement parent, String childIdentifier, Object... arguments) {
+        try {
+            element(parent, childIdentifier, arguments);
             return true;
         } catch (Exception ex) {
             _logger.trace("Exception,", ex);
@@ -107,11 +121,11 @@ public abstract class UIAbstract extends CommonUtils {
 
     protected WebElement waitForElement(String parentIdentifier, String childIdentifier, long waitTime,
             Object... arguments) {
-        _logger.debug("identifier[parent:{{}}, child:{{}}], arguments:{}, waitTime:{}ms",
-                parentIdentifier, childIdentifier, arguments, waitTime);
         if (arguments != null && childIdentifier.length() > 0) {
-            childIdentifier = MessageFormat.format(childIdentifier, arguments);
+            childIdentifier = format(childIdentifier, arguments);
         }
+        _logger.debug("identifier[parent:{{}}, child:{{}}], waitTime:{}ms",
+                parentIdentifier, childIdentifier, waitTime);
         WebElement parent = null;
         if (parentIdentifier != null) {
             parent = element(parentIdentifier);
@@ -135,5 +149,26 @@ public abstract class UIAbstract extends CommonUtils {
 
     protected WebElement waitForElement(String parentIdentifier, String childIdentifier, Object... arguments) {
         return waitForElement(parentIdentifier, childIdentifier, WAIT_TIME_DEFAULT, arguments);
+    }
+
+    public String format(String pattern, Object... arguments) {
+        if (arguments != null && arguments.length > 0) {
+            return MessageFormat.format(pattern, arguments);
+        } else {
+            return pattern;
+        }
+    }
+
+    protected String getXPath(WebElement el) {
+        String jscript = "function getPathTo(node) {" +
+                "  var stack = [];" +
+                "  while(node.parentNode !== null) {" +
+                "    stack.unshift(node.tagName);" +
+                "    node = node.parentNode;" +
+                "  }" +
+                "  return stack.join('/');" +
+                "}" +
+                "return getPathTo(arguments[0]);";
+        return (String) driver.executeScript(jscript, el);
     }
 }

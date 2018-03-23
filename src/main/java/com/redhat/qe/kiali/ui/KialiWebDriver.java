@@ -1,5 +1,7 @@
 package com.redhat.qe.kiali.ui;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.List;
 import java.util.Map;
@@ -17,7 +19,7 @@ import lombok.extern.slf4j.Slf4j;
  */
 
 @Slf4j
-public class KialiDriverUI extends RemoteWebDriver {
+public class KialiWebDriver extends RemoteWebDriver {
 
     private static final String ENSURE_PAGE_SAFE = "return {"
             + "jquery: (typeof jQuery === \"undefined\") ? true : jQuery.active < 1,"
@@ -27,19 +29,19 @@ public class KialiDriverUI extends RemoteWebDriver {
 
     private CommonUtils utils = new CommonUtils();
 
-    public KialiDriverUI() {
+    public KialiWebDriver() {
         super();
     }
 
-    public KialiDriverUI(Capabilities capabilities) {
+    public KialiWebDriver(Capabilities capabilities) {
         super(capabilities);
     }
 
-    public KialiDriverUI(CommandExecutor commandExecutor, Capabilities capabilities) {
+    public KialiWebDriver(CommandExecutor commandExecutor, Capabilities capabilities) {
         super(commandExecutor, capabilities);
     }
 
-    public KialiDriverUI(URL remoteAddress, Capabilities capabilities) {
+    public KialiWebDriver(URL remoteAddress, Capabilities capabilities) {
         super(remoteAddress, capabilities);
     }
 
@@ -53,6 +55,21 @@ public class KialiDriverUI extends RemoteWebDriver {
             timeOut -= 200;
         }
         _logger.warn("Looks like page not ready for more than {}ms", timeOut);
+    }
+
+    public void navigateTo(String relativePath, boolean force) {
+        String toUrl = null;
+        try {
+            toUrl = new URI(this.getCurrentUrl()).resolve(relativePath).toString();
+            _logger.debug("Navigate to url[relative:{{}}, to:{{}}, current:{{}}]",
+                    relativePath, toUrl, getCurrentUrl());
+            if (force || !getCurrentUrl().equals(toUrl)) {
+                this.navigate().to(toUrl);
+            }
+        } catch (URISyntaxException ex) {
+            _logger.error("Exception, ", ex);
+            throw new RuntimeException("Exception: " + ex.getMessage());
+        }
     }
 
     @Override

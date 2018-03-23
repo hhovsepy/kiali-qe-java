@@ -5,8 +5,9 @@ import java.util.List;
 
 import org.openqa.selenium.WebElement;
 
-import com.redhat.qe.kiali.model.Service;
-import com.redhat.qe.kiali.ui.KialiDriverUI;
+import com.redhat.qe.kiali.model.services.PodStatus;
+import com.redhat.qe.kiali.model.services.Service;
+import com.redhat.qe.kiali.ui.KialiWebDriver;
 
 /**
  * @author Jeeva Kandasamy (jkandasa)
@@ -14,15 +15,15 @@ import com.redhat.qe.kiali.ui.KialiDriverUI;
 
 public class ListViewService extends ListView<Service> {
 
-    private static final String SERVICE = ITEMS + "//span[text()=\"{0}\"]";
-    private static final String SERVICE_WITH_NAMESPACE = SERVICE + "/small[text()=\"{1}\"]";
+    private ComponentsHelper componentsHelper = null;
 
-    public ListViewService(KialiDriverUI driver) {
+    public ListViewService(KialiWebDriver driver) {
         this(driver, null);
     }
 
-    public ListViewService(KialiDriverUI driver, String identifier) {
+    public ListViewService(KialiWebDriver driver, String identifier) {
         super(driver, identifier);
+        componentsHelper = new ComponentsHelper(driver);
     }
 
     @Override
@@ -30,9 +31,15 @@ public class ListViewService extends ListView<Service> {
         ArrayList<Service> items = new ArrayList<Service>();
         for (WebElement rawItem : elements(identifier, ITEMS)) {
             String[] text = element(rawItem, ITEM_TEXT).getText().split("\\n");
+
+            PodStatus pod = componentsHelper.podStatus(rawItem);
+
             items.add(Service.builder()
                     .name(text[0])
                     .namespace(text[1])
+                    .replicas(pod.getReplicas())
+                    .availableReplicas(pod.getAvailableReplicas())
+                    .replicasStatus(pod.getStatus())
                     .build());
         }
         return items;
@@ -40,15 +47,7 @@ public class ListViewService extends ListView<Service> {
 
     @Override
     public void open(Service service) {
-        if (service.getName() != null && service.getNamespace() != null) {
-            element(identifier, SERVICE_WITH_NAMESPACE, service.getName(), service.getNamespace()).click();
-        } else if (service.getName() != null) {
-            element(identifier, SERVICE, service.getName()).click();
-        }
+        open(service.getName(), service.getNamespace());
     }
 
-    @Override
-    public void open(String serviceName) {
-        open(Service.builder().name(serviceName).build());
-    }
 }

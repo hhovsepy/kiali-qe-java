@@ -78,7 +78,7 @@ public class KialiTestListener extends TestListenerAdapter implements ISuiteList
     private void updateCookieAllDrivers(String key, String value) {
         for (String driverName : DriverFactory.getKeysAllDriver()) {
             try {
-                DriverFactory.getDriver(driverName).getDriverUI().manage().addCookie(cookie(key, value));
+                DriverFactory.getDriver(driverName).getWebDriver().manage().addCookie(cookie(key, value));
             } catch (Exception ex) {
                 _logger.error("Exception, driverName:[{}]", driverName, ex);
             }
@@ -92,7 +92,8 @@ public class KialiTestListener extends TestListenerAdapter implements ISuiteList
         SUITE_COUNT.setStartTime(System.currentTimeMillis());
         //DriverFactory.driverUI().manage().addCookie(cookie(ZALENIUM_MESSAGE, "[S] Start: " + suite.getName()));
         _logger.info("*** START[S]- {}", suite.getName());
-        _logger.debug("Thread count: {}", suite.getXmlSuite().getThreadCount());
+        _logger.debug("Parallel run config[isParallelRunEnabled:{}, threadCount: {}]",
+                suite.getXmlSuite().getParallel().isParallel(), suite.getXmlSuite().getThreadCount());
     }
 
     @Override
@@ -125,7 +126,7 @@ public class KialiTestListener extends TestListenerAdapter implements ISuiteList
         _logger.info("*** START[T] - {}", context.getName());
         updateTestCount(context, STATUS.START_TIME, System.currentTimeMillis());
         try {
-            DriverFactory.getDriver(context).getDriverUI().manage()
+            DriverFactory.getDriver(context).getWebDriver().manage()
                     .addCookie(cookie(ZALENIUM_MESSAGE, "[T] Start: " + context.getName()));
         } catch (Exception ex) {
             _logger.error("Exception, ", ex);
@@ -141,13 +142,14 @@ public class KialiTestListener extends TestListenerAdapter implements ISuiteList
         try {
             String driverName = DriverFactory.getDriverName(context);
             Driver driver = DriverFactory.getDriver(driverName);
-            driver.getDriverUI().manage().addCookie(cookie(ZALENIUM_MESSAGE, "[T] End: " + context.getName()));
+            driver.getWebDriver().manage().addCookie(cookie(ZALENIUM_MESSAGE, "[T] End: " + context.getName()));
             // if thread count is greater than 1, works on parrel run
-            if (context.getSuite().getXmlSuite().getThreadCount() > 1) {
+            if (context.getSuite().getXmlSuite().getParallel().isParallel()
+                    && context.getSuite().getXmlSuite().getThreadCount() > 1) {
                 if (testCount.getTotal() == testCount.getSuccess()) {
-                    driver.getDriverUI().manage().addCookie(cookie(ZALENIUM_TEST_STATUS, "true"));
+                    driver.getWebDriver().manage().addCookie(cookie(ZALENIUM_TEST_STATUS, "true"));
                 } else {
-                    driver.getDriverUI().manage().addCookie(cookie(ZALENIUM_TEST_STATUS, "false"));
+                    driver.getWebDriver().manage().addCookie(cookie(ZALENIUM_TEST_STATUS, "false"));
                 }
                 driver.tearDown();
                 DriverFactory.removeDriver(driverName);
@@ -163,7 +165,7 @@ public class KialiTestListener extends TestListenerAdapter implements ISuiteList
     public void onTestStart(ITestResult result) {
         _logger.info("*** START[M] - {}", result.getName());
         try {
-            DriverFactory.getDriver(result.getTestContext()).getDriverUI().manage()
+            DriverFactory.getDriver(result.getTestContext()).getWebDriver().manage()
                     .addCookie(cookie(ZALENIUM_MESSAGE, "[M] Start: " + result.getName()));
         } catch (Exception ex) {
             _logger.error("Exception, ", ex);
@@ -176,7 +178,7 @@ public class KialiTestListener extends TestListenerAdapter implements ISuiteList
         UpdateTestCount(result.getTestContext(), STATUS.SUCCESS);
         _logger.info("*** SUCCESS[M] - {}", result.getName());
         try {
-            DriverFactory.getDriver(result.getTestContext()).getDriverUI().manage()
+            DriverFactory.getDriver(result.getTestContext()).getWebDriver().manage()
                     .addCookie(cookie(ZALENIUM_MESSAGE, "[M] Success: " + result.getName()));
         } catch (Exception ex) {
             _logger.error("Exception, ", ex);
@@ -194,7 +196,7 @@ public class KialiTestListener extends TestListenerAdapter implements ISuiteList
         _logger.info("*** FAILED[M] - {}", result.getName());
         // report to video test failed
         try {
-            DriverFactory.getDriver(result.getTestContext()).getDriverUI().manage()
+            DriverFactory.getDriver(result.getTestContext()).getWebDriver().manage()
                     .addCookie(cookie(ZALENIUM_MESSAGE, "[M] Failed: " + result.getName()));
         } catch (Exception ex) {
             _logger.error("Exception, ", ex);
@@ -204,12 +206,12 @@ public class KialiTestListener extends TestListenerAdapter implements ISuiteList
         // TODO: add code to take screenshot with reports
         try {
             Driver driver = DriverFactory.getDriver(result.getTestContext());
-            File screenshot = driver.getDriverUI().getScreenshotAs(OutputType.FILE);
+            File screenshot = driver.getWebDriver().getScreenshotAs(OutputType.FILE);
             String distinationName = "/tmp/selenium/sl_" + result.getName() + "_" + System.currentTimeMillis()
                     + ".png";
             FileUtils.copyFile(screenshot, new File(distinationName));
             // reload browser in failure
-            driver.getDriverUI().navigate().refresh();
+            driver.getWebDriver().navigate().refresh();
         } catch (Exception ex) {
             _logger.error("Exception,", ex);
         }
@@ -221,7 +223,7 @@ public class KialiTestListener extends TestListenerAdapter implements ISuiteList
         UpdateTestCount(result.getTestContext(), STATUS.SKIPPED);
         _logger.info("*** SKIPPED[M] - {}", result.getName());
         try {
-            DriverFactory.getDriver(result.getTestContext()).getDriverUI().manage()
+            DriverFactory.getDriver(result.getTestContext()).getWebDriver().manage()
                     .addCookie(cookie(ZALENIUM_MESSAGE, "[M] Skipped: " + result.getName()));
         } catch (Exception ex) {
             _logger.error("Exception, ", ex);

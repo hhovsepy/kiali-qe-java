@@ -2,7 +2,7 @@ package com.redhat.qe.kiali.ui.components;
 
 import java.util.List;
 
-import com.redhat.qe.kiali.ui.KialiDriverUI;
+import com.redhat.qe.kiali.ui.KialiWebDriver;
 import com.redhat.qe.kiali.ui.UIAbstract;
 
 /**
@@ -14,7 +14,7 @@ public class Pagination extends UIAbstract {
     private static final String PER_PAGE_DROPDOWN = "//*[contains(@class, \"pagination-pf-pagesize\")]";
 
     private static final String TOTAL_ITEMS = ".//*[contains(@class, \"pagination-pf-items-total\")]";
-    private static final String TOTAL_PAGES = ".//*[contains(@class, \"pagination-pf-pages\")]";
+    private static final String TOTAL_PAGES = ".//*[contains(@class, \"pagination pagination-pf-forward\")]/..//*[contains(@class, \"pagination-pf-pages\")]";
     private static final String CURRENT_PAGE = "//input[contains(@class, \"pagination-pf-page\")]";
     private static final String FIRST_PAGE = "//*[@title=\"First Page\"]";
     private static final String LAST_PAGE = "//*[@title=\"Last Page\"]";
@@ -22,11 +22,11 @@ public class Pagination extends UIAbstract {
     private static final String PREVIOUS_PAGE = "//*[@title=\"Previous Page\"]";
     private String identifier = "//*[contains(@class, \"list-view-pf-pagination\") and contains(@class, \"content-view-pf-pagination\")]";
 
-    public Pagination(KialiDriverUI driver) {
+    public Pagination(KialiWebDriver driver) {
         this(driver, null);
     }
 
-    public Pagination(KialiDriverUI driver, String identifier) {
+    public Pagination(KialiWebDriver driver, String identifier) {
         super(driver);
         if (identifier != null) {
             this.identifier = identifier;
@@ -34,27 +34,39 @@ public class Pagination extends UIAbstract {
     }
 
     public Integer currentPage() {
-        return integer(new Input(driver, identifier + CURRENT_PAGE).value());
+        return integerValueOf(new Input(driver, identifier + CURRENT_PAGE).value());
     }
 
-    public void firstPage() {
+    public void moveToFirstPage() {
         element(identifier, FIRST_PAGE).click();
     }
 
-    public void lastPage() {
+    public void moveToLastPage() {
         element(identifier, LAST_PAGE).click();
     }
 
-    public void nextPage() {
+    public void moveToNextPage() {
         element(identifier, NEXT_PAGE).click();
     }
 
+    public void moveToPreviousPage() {
+        element(identifier, PREVIOUS_PAGE).click();
+    }
+
+    public void moveToPage(Integer pageNo) {
+        new Input(driver, identifier + CURRENT_PAGE).set(String.valueOf(pageNo));
+    }
+
+    public Integer totalItems() {
+        return integerValueOf(element(identifier, TOTAL_ITEMS).getText());
+    }
+
     public Integer pages() {
-        return integer(element(identifier, TOTAL_PAGES).getText());
+        return integerValueOf(element(identifier, TOTAL_PAGES).getText());
     }
 
     public Integer perPage() {
-        return integer(new Dropdown(driver, identifier + PER_PAGE_DROPDOWN).selected());
+        return integerValueOf(new Dropdown(driver, identifier + PER_PAGE_DROPDOWN).selected());
     }
 
     public void perPage(Integer perPage) {
@@ -66,15 +78,4 @@ public class Pagination extends UIAbstract {
         return integerList(perpDropdown.options());
     }
 
-    public void previousPage() {
-        element(identifier, PREVIOUS_PAGE).click();
-    }
-
-    public void toPage(Integer pageNo) {
-        new Input(driver, identifier + CURRENT_PAGE).set(String.valueOf(pageNo));
-    }
-
-    public Integer totalItems() {
-        return integer(element(identifier, TOTAL_ITEMS).getText());
-    }
 }

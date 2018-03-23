@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
-<suite name="Kiali UI tests - Java" parallel="tests" thread-count="2">
+<suite name="Kiali UI automtion[Java]">
   <listeners>
     <listener class-name="com.redhat.qe.kiali.ui.tests.KialiTestListener"></listener>
   </listeners>
 
-  <test name="Navbar and Menu test">
+
+  <test name="Navbar and Menu tests">
     <classes>
       <class name="com.redhat.qe.kiali.ui.tests.menu.TestNavbar" />
       <class name="com.redhat.qe.kiali.ui.tests.menu.TestMenu" />
@@ -14,8 +15,15 @@
 
   <test name="Services page tests">
     <classes>
-      <class name="com.redhat.qe.kiali.ui.tests.services.TestServicePage" />
+      <class name="com.redhat.qe.kiali.ui.tests.services.TestServicesPage" />
     </classes>
   </test>
+
+  <test name="Istio mixer rules page tests">
+    <classes>
+      <class name="com.redhat.qe.kiali.ui.tests.istiomixerrules.TestIstioMixerRulesPage" />
+    </classes>
+  </test>
+
 </suite> <!-- Kiali UI tests -->
             

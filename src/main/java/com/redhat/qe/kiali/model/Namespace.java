@@ -1,6 +1,6 @@
 package com.redhat.qe.kiali.model;
 
-import lombok.Getter;
+import lombok.Data;
 import lombok.ToString;
 
 /**
@@ -8,7 +8,7 @@ import lombok.ToString;
  */
 
 @ToString
-@Getter
+@Data
 public class Namespace {
     private String name;
 }

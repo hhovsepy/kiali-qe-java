@@ -1,6 +1,6 @@
 package com.redhat.qe.kiali.ui.components;
 
-import com.redhat.qe.kiali.ui.KialiDriverUI;
+import com.redhat.qe.kiali.ui.KialiWebDriver;
 import com.redhat.qe.kiali.ui.UIAbstract;
 
 /**
@@ -15,11 +15,11 @@ public class Navbar extends UIAbstract {
 
     private Dropdown menuRight;
 
-    public Navbar(KialiDriverUI driver) {
+    public Navbar(KialiWebDriver driver) {
         this(driver, null);
     }
 
-    public Navbar(KialiDriverUI driver, String identifier) {
+    public Navbar(KialiWebDriver driver, String identifier) {
         super(driver);
         if (identifier != null) {
             this.identifier = identifier;

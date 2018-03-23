@@ -1,12 +1,17 @@
 package com.redhat.qe.kiali.rest;
 
 import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import com.redhat.qe.kiali.model.Namespace;
-import com.redhat.qe.kiali.model.Services;
+import com.redhat.qe.kiali.model.rules.Rule;
+import com.redhat.qe.kiali.model.rules.RuleDetail;
+import com.redhat.qe.kiali.model.rules.Rules;
+import com.redhat.qe.kiali.model.services.Service;
+import com.redhat.qe.kiali.model.services.Services;
 import com.redhat.qe.kiali.rest.core.KialiHeader;
 import com.redhat.qe.kiali.rest.core.KialiHttpClient;
 import com.redhat.qe.kiali.rest.core.KialiHttpResponse;
@@ -78,6 +83,19 @@ public class KialiRestClient extends KialiHttpClient {
         return (Services) readValue(response.getEntity(), simpleResolver().get(Services.class));
     }
 
+    public List<Service> services() {
+        List<Namespace> namesapces = namespaces();
+        List<Service> services = new ArrayList<Service>();
+        for (Namespace namespace : namesapces) {
+            Services _services = services(namespace.getName());
+            for (Service _service : _services.getServices()) {
+                _service.setNamespace(_services.getNamespace().getName());
+                services.add(_service);
+            }
+        }
+        return services;
+    }
+
     @SuppressWarnings("unchecked")
     public Map<String, String> status() {
         KialiHttpResponse response = doGet(baseUrl + "/api/status", header, STATUS_CODE.OK.getCode());
@@ -85,4 +103,29 @@ public class KialiRestClient extends KialiHttpClient {
                 mapResolver().get(Map.class, String.class, String.class));
     }
 
+    public Rules rules(String namespace) {
+        KialiHttpResponse response = doGet(baseUrl + MessageFormat.format("/api/namespaces/{0}/rules", namespace),
+                header, STATUS_CODE.OK.getCode());
+        return (Rules) readValue(response.getEntity(), simpleResolver().get(Rules.class));
+    }
+
+    public List<Rule> rules() {
+        List<Namespace> namesapces = namespaces();
+        List<Rule> rules = new ArrayList<Rule>();
+        for (Namespace namespace : namesapces) {
+            Rules _rules = rules(namespace.getName());
+            for (Rule _rule : _rules.getRules()) {
+                _rule.setNamespace(_rules.getNamespace().getName());
+                rules.add(_rule);
+            }
+        }
+        return rules;
+    }
+
+    public RuleDetail rule(String namespace, String rule) {
+        KialiHttpResponse response = doGet(
+                baseUrl + MessageFormat.format("/api/namespaces/{0}/rules/{1}", namespace, rule),
+                header, STATUS_CODE.OK.getCode());
+        return (RuleDetail) readValue(response.getEntity(), simpleResolver().get(RuleDetail.class));
+    }
 }

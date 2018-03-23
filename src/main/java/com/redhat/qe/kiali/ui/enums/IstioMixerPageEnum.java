@@ -4,10 +4,10 @@ package com.redhat.qe.kiali.ui.enums;
  * @author Jeeva Kandasamy (jkandasa)
  */
 
-public class ServicesPageEnum {
+public class IstioMixerPageEnum {
 
     public enum FILTER implements IEnumString {
-        SERVICE_NAME("Service Name"),
+        RULE_NAME("Rule Name"),
         NAMESPACE("Namespace");
 
         public static FILTER fromText(String text) {
@@ -32,7 +32,7 @@ public class ServicesPageEnum {
 
     public enum SORT implements IEnumString {
         NAMESPACE("Namespace"),
-        SERVICE_NAME("Service Name");
+        RULE_NAME("Rule Name");
 
         public static SORT fromText(String text) {
             return (SORT) EnumStringHelper.fromText(text, values());
