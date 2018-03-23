@@ -3,6 +3,7 @@ package com.redhat.qe.kiali.rest.core.typeresolvers;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.redhat.qe.kiali.rest.core.ClientObjectMapper;
+
 /**
  * @author Jeeva Kandasamy (jkandasa)
  */

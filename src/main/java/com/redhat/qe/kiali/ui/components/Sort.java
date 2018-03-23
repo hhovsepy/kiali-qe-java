@@ -1,6 +1,6 @@
 package com.redhat.qe.kiali.ui.components;
 
-import com.redhat.qe.kiali.ui.KialiDriverUI;
+import com.redhat.qe.kiali.ui.KialiWebDriver;
 import com.redhat.qe.kiali.ui.UIAbstract;
 
 /**
@@ -13,11 +13,11 @@ public class Sort extends UIAbstract {
 
     private String identifier = "//*[contains(@class, \"form-group\")]/button/*[contains(@class, \"sort-direction\")]/..";
 
-    public Sort(KialiDriverUI driver) {
+    public Sort(KialiWebDriver driver) {
         this(driver, null);
     }
 
-    public Sort(KialiDriverUI driver, String identifier) {
+    public Sort(KialiWebDriver driver, String identifier) {
         super(driver);
         if (identifier != null) {
             this.identifier = identifier;

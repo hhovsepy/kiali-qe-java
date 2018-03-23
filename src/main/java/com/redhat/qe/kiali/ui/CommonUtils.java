@@ -12,7 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class CommonUtils {
 
-    public Integer integer(String value) {
+    public Integer integerValueOf(String value) {
         if (value != null) {
             return Integer.valueOf(value);
         }

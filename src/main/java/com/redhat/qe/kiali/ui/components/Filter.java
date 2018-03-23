@@ -6,7 +6,7 @@ import java.util.List;
 import org.openqa.selenium.WebElement;
 
 import com.redhat.qe.kiali.model.KeyValue;
-import com.redhat.qe.kiali.ui.KialiDriverUI;
+import com.redhat.qe.kiali.ui.KialiWebDriver;
 import com.redhat.qe.kiali.ui.UIAbstract;
 
 import lombok.extern.slf4j.Slf4j;
@@ -31,11 +31,11 @@ public class Filter extends UIAbstract {
 
     private Dropdown filters;
 
-    public Filter(KialiDriverUI driver) {
+    public Filter(KialiWebDriver driver) {
         this(driver, null);
     }
 
-    public Filter(KialiDriverUI driver, String identifier) {
+    public Filter(KialiWebDriver driver, String identifier) {
         super(driver);
         if (identifier != null) {
             this.identifier = identifier;

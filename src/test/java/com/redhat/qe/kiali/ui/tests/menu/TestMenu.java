@@ -21,7 +21,7 @@ public class TestMenu extends TestAbstract {
 
     @BeforeClass
     public void loadObject() {
-        rootPage = new RootPage(driverUI());
+        rootPage = new RootPage(webDriver());
     }
 
     /**

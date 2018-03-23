@@ -12,7 +12,7 @@ import org.testng.annotations.BeforeTest;
 
 import com.redhat.qe.kiali.model.KeyValue;
 import com.redhat.qe.kiali.rest.KialiRestClient;
-import com.redhat.qe.kiali.ui.KialiDriverUI;
+import com.redhat.qe.kiali.ui.KialiWebDriver;
 import com.redhat.qe.kiali.ui.pages.RootPage;
 
 /**
@@ -57,8 +57,8 @@ public abstract class TestAbstract {
         return false;
     }
 
-    public KialiDriverUI driverUI() {
-        return driver.getDriverUI();
+    public KialiWebDriver webDriver() {
+        return driver.getWebDriver();
     }
 
     public int random() {

@@ -6,7 +6,7 @@ import java.util.List;
 import org.openqa.selenium.WebElement;
 
 import com.redhat.qe.kiali.model.Version;
-import com.redhat.qe.kiali.ui.KialiDriverUI;
+import com.redhat.qe.kiali.ui.KialiWebDriver;
 import com.redhat.qe.kiali.ui.UIAbstract;
 
 /**
@@ -23,11 +23,11 @@ public class About extends UIAbstract {
 
     private String identifier = "//*[contains(@class, \"about-modal-pf\")]";
 
-    public About(KialiDriverUI driver) {
+    public About(KialiWebDriver driver) {
         this(driver, null);
     }
 
-    public About(KialiDriverUI driver, String identifier) {
+    public About(KialiWebDriver driver, String identifier) {
         super(driver);
         if (identifier != null) {
             this.identifier = identifier;

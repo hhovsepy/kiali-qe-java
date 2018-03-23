@@ -24,7 +24,7 @@ public class TestNavbar extends TestAbstract {
 
     @BeforeClass
     public void loadObject() {
-        rootPage = new RootPage(driverUI());
+        rootPage = new RootPage(webDriver());
     }
 
     /**
@@ -42,7 +42,7 @@ public class TestNavbar extends TestAbstract {
         // open about dialog
         About about = rootPage.navbar().about();
         // check application name
-        Assert.assertEquals(about.applicationName(), "Swift Sunshine");
+        Assert.assertEquals(about.applicationName(), "Kiali");
         // check application versions
         // load defined versions
         VERSION[] definedVersions = VERSION.values();

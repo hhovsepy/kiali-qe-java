@@ -1,10 +1,9 @@
 package com.redhat.qe.kiali.ui.tests;
 
 import com.redhat.qe.kiali.rest.KialiRestClient;
-import com.redhat.qe.kiali.ui.KialiDriverUI;
+import com.redhat.qe.kiali.ui.KialiWebDriver;
 
 import lombok.Builder;
-
 import lombok.Getter;
 
 /**
@@ -13,12 +12,13 @@ import lombok.Getter;
 @Getter
 @Builder
 public class Driver {
-    private KialiDriverUI driverUI;
+    private String kialiHostname;
+    private KialiWebDriver webDriver;
     private KialiRestClient restClient;
 
     public void tearDown() {
-        if (driverUI != null) {
-            driverUI.quit();
+        if (webDriver != null) {
+            webDriver.quit();
         }
     }
 }

@@ -1,15 +1,17 @@
-package com.redhat.qe.kiali.model;
+package com.redhat.qe.kiali.model.services;
 
 import java.util.List;
 
-import lombok.Getter;
+import com.redhat.qe.kiali.model.Namespace;
+
+import lombok.Data;
 import lombok.ToString;
 
 /**
  * @author Jeeva Kandasamy (jkandasa)
  */
 
-@Getter
+@Data
 @ToString
 public class Services {
     private Namespace namespace;

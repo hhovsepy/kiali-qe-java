@@ -1,4 +1,4 @@
-package com.redhat.qe.kiali.ui.tests.services;
+package com.redhat.qe.kiali.ui.tests.istiomixerrules;
 
 import java.util.List;
 
@@ -8,15 +8,15 @@ import org.testng.annotations.Test;
 
 import com.redhat.qe.kiali.model.KeyValue;
 import com.redhat.qe.kiali.model.Namespace;
-import com.redhat.qe.kiali.model.Service;
 import com.redhat.qe.kiali.model.SortOption;
+import com.redhat.qe.kiali.model.rules.Rule;
 import com.redhat.qe.kiali.ui.components.Filter;
 import com.redhat.qe.kiali.ui.components.Pagination;
 import com.redhat.qe.kiali.ui.components.SortDropdown;
-import com.redhat.qe.kiali.ui.enums.ServicesPageEnum.FILTER;
-import com.redhat.qe.kiali.ui.enums.ServicesPageEnum.PERPAGE;
-import com.redhat.qe.kiali.ui.enums.ServicesPageEnum.SORT;
-import com.redhat.qe.kiali.ui.pages.ServicesPage;
+import com.redhat.qe.kiali.ui.enums.IstioMixerPageEnum.FILTER;
+import com.redhat.qe.kiali.ui.enums.IstioMixerPageEnum.SORT;
+import com.redhat.qe.kiali.ui.enums.PaginationEnum.PERPAGE;
+import com.redhat.qe.kiali.ui.pages.IstioMixerRulesPage;
 import com.redhat.qe.kiali.ui.tests.TestAbstract;
 
 import lombok.extern.slf4j.Slf4j;
@@ -26,24 +26,24 @@ import lombok.extern.slf4j.Slf4j;
  */
 
 @Slf4j
-public class TestServicePage extends TestAbstract {
-    private ServicesPage services;
+public class TestIstioMixerRulesPage extends TestAbstract {
+    private IstioMixerRulesPage page;
 
-    private void checkNumberOfServices(Integer perPage) {
-        Pagination pagination = services.pagination();
+    private void checkNumberOfItems(Integer perPage) {
+        Pagination pagination = page.pagination();
         pagination.perPage(perPage);
         Assert.assertEquals(pagination.perPage(), perPage);
-        List<Service> serviceList = services.serviceList().items();
+        List<Rule> serviceList = page.list().items();
         Assert.assertEquals(serviceList.size(), perPage.intValue());
     }
 
     /**
-     * Navigate to services page.
+     * Navigate to this page.
      */
     @BeforeClass
-    public void loadServicesPage() {
-        services = new ServicesPage(driverUI());
-        rootPage = services;
+    public void loadThisPage() {
+        page = new IstioMixerRulesPage(webDriver());
+        rootPage = page;
     }
 
     /**
@@ -62,28 +62,28 @@ public class TestServicePage extends TestAbstract {
     @Test
     public void testFilterFeature() {
         // load defined items
-        FILTER[] filtersDefined = FILTER.values();
-        Filter filter = services.filter();
+        FILTER[] definedFilters = FILTER.values();
+        Filter filter = page.filter();
         // test available filter options
-        List<String> filters = filter.filters();
-        _logger.debug("Available filter options:{}", filters);
-        Assert.assertEquals(filters.size(), filtersDefined.length);
-        for (String item : filters) {
+        List<String> filtersUI = filter.filters();
+        _logger.debug("Available filter options:{}", filtersUI);
+        Assert.assertEquals(filtersUI.size(), definedFilters.length);
+        for (String item : filtersUI) {
             Assert.assertNotNull(FILTER.fromText(item));
         }
 
         // get namespaces from UI and REST compare both
         List<String> namespacesUI = filter.options(FILTER.NAMESPACE.getText());
-        // remove the default title from items list
-        if (namespacesUI.size() > 1) {
-            namespacesUI.remove("Filter by Namespace");
-        }
         // TODO: sometime list not loaded properly. need to fix this on pageObject.
         // For now workaround, retry once again
         if (!(namespacesUI.size() > 1)) {
             _logger.debug("First try failed. Retrying once again. **Fix this on PageObject code**");
             filter.sleep(500);
             namespacesUI = filter.options(FILTER.NAMESPACE.getText());
+        }
+        // remove the default title from items list
+        if (namespacesUI.size() > 1) {
+            namespacesUI.remove("Filter by Namespace");
         }
         _logger.debug("Namespace UI list:{}", namespacesUI);
         // fail test if there is no namespace available
@@ -93,7 +93,7 @@ public class TestServicePage extends TestAbstract {
         List<Namespace> namespacesREST = restClient().namespaces();
         _logger.debug("Namespace REST list:{}", namespacesREST);
         // assert the size in UI and in REST
-        Assert.assertEquals(namespacesUI.size(), namespacesREST.size(), "number of namespaces in UI and in REST");
+        Assert.assertEquals(namespacesUI.size(), namespacesREST.size(), "number of namespaces in UI and in REST,");
         // assert names in UI and REST
         for (Namespace namespace : namespacesREST) {
             Assert.assertTrue(namespacesUI.contains(namespace.getName()), "REST Namespace in UI:" + namespace);
@@ -107,17 +107,17 @@ public class TestServicePage extends TestAbstract {
         Assert.assertEquals(activeFilters.size(), 1);
         Assert.assertTrue(contains(activeFilters, filter1));
         // test values after this filter
-        List<Service> serviceItems = services.serviceList().items();
-        _logger.debug("Service items:{}", serviceItems);
-        for (Service item : serviceItems) {
+        List<Rule> serviceItems = page.list().items();
+        _logger.debug("Rule items:{}", serviceItems);
+        for (Rule item : serviceItems) {
             Assert.assertEquals(item.getNamespace(), "istio-system");
         }
         // TODO: test on next page as well
         // add one more filter
         if (serviceItems.size() > 0) {
-            Service selectedItem = serviceItems.get(random(serviceItems.size()));
+            Rule selectedItem = serviceItems.get(random(serviceItems.size()));
             KeyValue filter2 = KeyValue.builder()
-                    .key(FILTER.SERVICE_NAME.getText())
+                    .key(FILTER.RULE_NAME.getText())
                     .value(selectedItem.getName())
                     .build();
             filter.apply(filter2);
@@ -126,9 +126,9 @@ public class TestServicePage extends TestAbstract {
             Assert.assertEquals(activeFilters.size(), 2);
             Assert.assertTrue(contains(activeFilters, filter1));
             Assert.assertTrue(contains(activeFilters, filter2));
-            serviceItems = services.serviceList().items();
-            _logger.debug("Service items:{}", serviceItems);
-            for (Service item : serviceItems) {
+            serviceItems = page.list().items();
+            _logger.debug("Rule items:{}", serviceItems);
+            for (Rule item : serviceItems) {
                 Assert.assertTrue(item.getName().contains(selectedItem.getName()));
                 Assert.assertEquals(item.getNamespace(), "istio-system");
             }
@@ -138,9 +138,9 @@ public class TestServicePage extends TestAbstract {
             _logger.debug("Active filters:{}", activeFilters);
             Assert.assertEquals(activeFilters.size(), 1);
             Assert.assertTrue(contains(activeFilters, filter1));
-            serviceItems = services.serviceList().items();
-            _logger.debug("Service items:{}", serviceItems);
-            for (Service item : serviceItems) {
+            serviceItems = page.list().items();
+            _logger.debug("Rule items:{}", serviceItems);
+            for (Rule item : serviceItems) {
                 Assert.assertEquals(item.getNamespace(), "istio-system");
             }
         }
@@ -167,7 +167,7 @@ public class TestServicePage extends TestAbstract {
     public void testPaginationFeauture() {
         // load defined items
         PERPAGE[] optionsDefined = PERPAGE.values();
-        Pagination pagination = services.pagination();
+        Pagination pagination = page.pagination();
         // per page options
         List<Integer> perPageOptions = pagination.perPageOptions();
         Assert.assertEquals(perPageOptions.size(), optionsDefined.length);
@@ -177,15 +177,13 @@ public class TestServicePage extends TestAbstract {
         // check total number of items
         int totalItems = pagination.totalItems();
         // get total number of items from REST API
-        int totalItemsRestApi = 0;
-        for (Namespace namespace : restClient().namespaces()) {
-            totalItemsRestApi += restClient().services(namespace.getName()).getServices().size();
-        }
+        int totalItemsRestApi = restClient().rules().size();
         Assert.assertEquals(totalItems, totalItemsRestApi);
+
         // can execute this test if we have more than per page items as total
         for (PERPAGE perpage : optionsDefined) {
             if (totalItems > perpage.getValue()) {
-                checkNumberOfServices(perpage.getValue());
+                checkNumberOfItems(perpage.getValue());
             }
         }
     }
@@ -202,7 +200,7 @@ public class TestServicePage extends TestAbstract {
     public void testSortingFeauture() {
         // load defined items
         SORT[] optionsDefined = SORT.values();
-        SortDropdown sort = services.sort();
+        SortDropdown sort = page.sort();
         // check available options
         List<String> options = sort.options();
         _logger.debug("Sorting options:{}", options);
@@ -211,11 +209,27 @@ public class TestServicePage extends TestAbstract {
             Assert.assertNotNull(SORT.fromText(item));
         }
         // set an option and verify
-        SortOption set = SortOption.builder().option(SORT.SERVICE_NAME.getText()).ascending(false).build();
+        SortOption set = SortOption.builder().option(SORT.RULE_NAME.getText()).ascending(false).build();
         sort.select(set);
         SortOption selected = sort.selected();
         Assert.assertEquals(selected.getOption(), set.getOption());
         Assert.assertEquals(selected.isAscending(), set.isAscending());
         // TODO: verify services order after sort option changed
+    }
+
+    /**
+     * Test description:
+     *   Test all available items
+     * Steps:
+     *      - get all the items from UI and REST
+     *      - compare all the items
+     */
+    @Test
+    public void testAllItems() {
+        List<Rule> itemsUI = page.list().allItems();
+        List<Rule> itemsRest = restClient().rules();
+        _logger.debug("Items[UI:{}, REST:{}]", itemsUI);
+        _logger.debug("Items[REST:{}]", itemsRest);
+        Assert.assertEquals(itemsUI, itemsRest);
     }
 }
