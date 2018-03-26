@@ -81,6 +81,9 @@ public class DriverFactory {
 
         String remoteDriver = System.getProperty("seleniumGrid", "http://localhost:4444/wd/hub");
 
+        _logger.debug("Kiali hostname:[{}]", hostname);
+        _logger.debug("Selenium grid:[{}]", remoteDriver);
+
         //String remoteDriver = "http://localhost:4444/wd/hub";
 
         // load UI driver

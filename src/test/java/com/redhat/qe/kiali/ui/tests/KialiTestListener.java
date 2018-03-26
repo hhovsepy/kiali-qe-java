@@ -35,9 +35,10 @@ public class KialiTestListener extends TestListenerAdapter implements ISuiteList
     }
 
     private String getTestName(ITestContext testContext) {
-        String suiteName = testContext.getSuite().getName();
+        //String suiteName = testContext.getSuite().getName();
         String testName = testContext.getName();
-        return suiteName + "[" + testName + "]";
+        //return suiteName + "[" + testName + "]";
+        return "[" + testName + "]";
     }
 
     private void UpdateTestCount(ITestContext testContext, STATUS status) {
@@ -92,7 +93,7 @@ public class KialiTestListener extends TestListenerAdapter implements ISuiteList
         SUITE_COUNT.setStartTime(System.currentTimeMillis());
         //DriverFactory.driverUI().manage().addCookie(cookie(ZALENIUM_MESSAGE, "[S] Start: " + suite.getName()));
         _logger.info("*** START[S]- {}", suite.getName());
-        _logger.debug("Parallel run config[isParallelRunEnabled:{}, threadCount: {}]",
+        _logger.debug("*** Parallel run config[isParallelRunEnabled:{}, threadCount: {}]",
                 suite.getXmlSuite().getParallel().isParallel(), suite.getXmlSuite().getThreadCount());
     }
 
@@ -207,11 +208,12 @@ public class KialiTestListener extends TestListenerAdapter implements ISuiteList
         try {
             Driver driver = DriverFactory.getDriver(result.getTestContext());
             File screenshot = driver.getWebDriver().getScreenshotAs(OutputType.FILE);
+            // reload browser in failure
+            driver.getWebDriver().navigate().refresh();
+            // store the file on disk
             String distinationName = "/tmp/selenium/sl_" + result.getName() + "_" + System.currentTimeMillis()
                     + ".png";
             FileUtils.copyFile(screenshot, new File(distinationName));
-            // reload browser in failure
-            driver.getWebDriver().navigate().refresh();
         } catch (Exception ex) {
             _logger.error("Exception,", ex);
         }
