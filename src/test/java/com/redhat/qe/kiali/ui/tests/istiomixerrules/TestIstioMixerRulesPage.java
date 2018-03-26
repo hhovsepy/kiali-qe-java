@@ -48,9 +48,9 @@ public class TestIstioMixerRulesPage extends TestAbstract {
 
     /**
      * Test description:
-     *   Tests services page filter functionality. Like apply and remove filter
+     *   Tests this page filter functionality. Like apply and remove filter
      * Steps:
-     *      - check filter options. we have only two type of filter options[Namespace, Server Name]
+     *      - check filter options. we have only two type of filter options[Namespace, Rule Name]
      *      - check available filters, by default NONE
      *      - check available options for Namesapce, if NONE fail it
      *      - compare namespaces with REST API, count and names
@@ -153,7 +153,7 @@ public class TestIstioMixerRulesPage extends TestAbstract {
 
     /**
      * Test description:
-     *   Tests services pagination functionality
+     *   Tests this page pagination functionality
      * Steps:
      *      - check per page options.
      *      - check total number of items available in the page
@@ -190,9 +190,9 @@ public class TestIstioMixerRulesPage extends TestAbstract {
 
     /**
      * Test description:
-     *   Tests services page sorting functionality
+     *   Tests this page sorting functionality
      * Steps:
-     *      - check available options count and items, for now[Namespace, Server Name]
+     *      - check available options count and items, for now[Namespace, Rule Name]
      *      - set an option and verify
      *      - TODO: verify services order after sort option changed
      */
