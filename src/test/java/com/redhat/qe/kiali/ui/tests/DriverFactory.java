@@ -91,9 +91,11 @@ public class DriverFactory {
 
         // get version details
         Map<String, String> status = restClient.status();
-        String build = MessageFormat.format("Version[console:{0}, core:{1}:{2}]",
+        String build = MessageFormat.format("console:{0}, core:{1}:{2}",
                 status.get("Kiali console version"),
                 status.get("Kiali core version"), status.get("Kiali core commit hash"));
+
+        _logger.info("Build: {}", build);
 
         // load UI driver
         DesiredCapabilities caps = DesiredCapabilities.chrome();
