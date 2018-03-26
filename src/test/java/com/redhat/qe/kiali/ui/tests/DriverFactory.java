@@ -2,8 +2,10 @@ package com.redhat.qe.kiali.ui.tests;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -84,7 +86,16 @@ public class DriverFactory {
         _logger.debug("Kiali hostname:[{}]", hostname);
         _logger.debug("Selenium grid:[{}]", remoteDriver);
 
-        //String remoteDriver = "http://localhost:4444/wd/hub";
+        // load REST client
+        KialiRestClient restClient = new KialiRestClient("http://" + hostname, username, password);
+
+        // get version details
+        Map<String, String> status = restClient.status();
+        String build = MessageFormat.format("Kiali, console:{0}, core:{1}:{2}",
+                status.get("Kiali console version"),
+                status.get("Kiali core version"), status.get("Kiali core commit hash"));
+
+        _logger.info("Build: {}", build);
 
         // load UI driver
         DesiredCapabilities caps = DesiredCapabilities.chrome();
@@ -101,6 +112,7 @@ public class DriverFactory {
         caps.setCapability("zal:screenResolution", "1920x1080");
         caps.setCapability("zal:idleTimeout", "60");
         caps.setCapability("zal:recordVideo", "true");
+        caps.setCapability("zal:build", build);
 
         KialiWebDriver webDriver = new KialiWebDriver(new URL(remoteDriver), caps);
 
@@ -111,8 +123,6 @@ public class DriverFactory {
         webDriver.manage().window().maximize();
         _logger.debug("New selenium driver created. SessionId:[{}]", webDriver.getSessionId());
 
-        // load REST client
-        KialiRestClient restClient = new KialiRestClient("http://" + hostname, username, password);
         return Driver.builder()
                 .kialiHostname(hostname)
                 .webDriver(webDriver)
