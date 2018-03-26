@@ -54,8 +54,8 @@ public class RootPageEnum {
     }
 
     public enum VERSION implements IEnumString {
-        SWSUI("swsui"),
-        SWSCORE("swscore");
+        KIALI_UI("kiali-ui"),
+        KIALI_CORE("kiali");
 
         public static VERSION fromText(String text) {
             return (VERSION) EnumStringHelper.fromText(text, values());
