@@ -234,4 +234,14 @@ public class TestServicesPage extends TestAbstract {
         _logger.debug("Items REST:[{}]", itemsRest);
         Assert.assertEquals(itemsUI, itemsRest);
     }
+
+    @Test
+    public void testAllItems2() {
+        List<Service> itemsUI = page.list().allItems();
+        List<Service> itemsRest = restClient().services();
+        _logger.debug("Items UI:[{}]", itemsUI);
+        _logger.debug("Items REST:[{}]", itemsRest);
+        Assert.assertEquals(itemsUI, itemsRest);
+    }
+
 }
